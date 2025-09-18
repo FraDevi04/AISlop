@@ -1,4 +1,5 @@
-﻿namespace AISlop;
+﻿// src/tools/filesystem/CreateDirectory.cs
+namespace AISlop;
 
 public class CreateDirectory : ITool
 {

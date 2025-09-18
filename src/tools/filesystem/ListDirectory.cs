@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿// src/tools/filesystem/ListDirectory.cs
+using System.Text;
 
 namespace AISlop;
 

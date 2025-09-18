@@ -1,4 +1,7 @@
-﻿namespace AISlop;
+﻿// src/tools/web/GetTextFromWebPage.cs
+using AISlop;
+
+namespace AISlop;
 
 public class GetTextFromWebPage : ITool
 {

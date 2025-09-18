@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿// src/helpers/Config.cs
+using System.Text.Json;
 using System.Xml;
 
 namespace AISlop;

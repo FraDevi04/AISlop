@@ -1,8 +1,10 @@
-﻿namespace AISlop;
+﻿// src/helpers/WebScraper.cs
+namespace AISlop;
 
 using System.Collections.Immutable;
 using System.Text;
 using System.Web;
+
 using AngleSharp;
 using AngleSharp.Dom;
 

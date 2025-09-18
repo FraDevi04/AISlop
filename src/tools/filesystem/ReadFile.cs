@@ -1,5 +1,4 @@
-﻿
-
+﻿// src/tools/filesystem/ReadFile.cs
 using System.Text;
 using UglyToad.PdfPig;
 

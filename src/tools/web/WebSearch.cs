@@ -1,4 +1,5 @@
-﻿
+﻿// src/tools/web/WebSearch.cs
+using AISlop;
 
 namespace AISlop;
 

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿// src/tools/filesystem/WriteFile.cs
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace AISlop;
@@ -18,6 +19,11 @@ public class WriteFile : ITool
     private Task<string> _CreateFile(string filename, string content, string cwd)
     {
         string filePath = Path.Combine(cwd, filename);
+
+        string? dir = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrEmpty(dir))
+            Directory.CreateDirectory(dir);
+
         if (File.Exists(filePath))
             return Task.FromResult($"A file with that name already exists in the workspace: {filename}");
 
@@ -37,6 +43,6 @@ public class WriteFile : ITool
         if (File.Exists(filePath))
             File.Delete(filePath);
 
-        return _CreateFile(filename, text, cwd);
+        return _CreateFile(filePath, text, cwd);
     }
 }

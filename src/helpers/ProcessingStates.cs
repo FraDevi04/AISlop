@@ -1,4 +1,5 @@
-﻿namespace AISlop;
+﻿// src/helpers/ProcessingStates.cs
+namespace AISlop;
 
 /// <summary>
 /// Defines the states for processing the streaming response.

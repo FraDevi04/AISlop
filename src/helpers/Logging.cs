@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿// src/helpers/Logging.cs
+using System.Text;
 
 namespace AISlop
 {

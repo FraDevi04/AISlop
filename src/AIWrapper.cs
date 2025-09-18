@@ -1,4 +1,7 @@
-﻿using LlmTornado;
+﻿// src/AIWrapper.cs
+using AISlop;
+
+using LlmTornado;
 using LlmTornado.Chat;
 using LlmTornado.Chat.Models;
 using LlmTornado.Code;
@@ -23,7 +26,7 @@ namespace AISlop
                 Temperature = 0.2,
                 TopP = 0.9,
                 ResponseFormat = ChatRequestResponseFormats.Json,
-                FrequencyPenalty = 0.4
+                FrequencyPenalty = 0.2
             });
             _conversation.AddSystemMessage(GetInstruction("SlopInstruction"));
             _streamingStates = streamingState;

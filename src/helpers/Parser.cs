@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿// src/helpers/Parser.cs
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+
 using static AISlop.Parser;
 
 namespace AISlop

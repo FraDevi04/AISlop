@@ -1,4 +1,5 @@
-﻿namespace AISlop;
+﻿// src/interfaces/ITool.cs
+namespace AISlop;
 
 public interface ITool
 {
