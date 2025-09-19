@@ -1,4 +1,4 @@
-!\[Status](https://img.shields.io/badge/status-WIP-orange)
+![Status](https://img.shields.io/badge/status-WIP-orange)
 
 
 
