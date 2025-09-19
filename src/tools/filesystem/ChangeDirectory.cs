@@ -1,4 +1,5 @@
-﻿namespace AISlop;
+﻿// src/tools/filesystem/ChangeDirectory.cs
+namespace AISlop;
 
 public class ChangeDirectory : ITool
 {

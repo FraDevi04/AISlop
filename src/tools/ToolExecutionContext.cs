@@ -1,4 +1,5 @@
-﻿namespace AISlop
+﻿// src/tools/ToolExecutionContext.cs
+namespace AISlop
 {
     public class ToolExecutionContext
     {

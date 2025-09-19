@@ -1,7 +1,9 @@
-﻿using System.Text;
+﻿// src/helpers/Parser.cs
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+
 using static AISlop.Parser;
 
 namespace AISlop
@@ -22,9 +24,8 @@ namespace AISlop
                 sb.AppendLine($"Thought: {Thought}");
                 sb.AppendLine("Args:");
                 foreach (var item in Args)
-                {
                     sb.AppendLine($"  {item.Key}: {item.Value}");
-                }
+
                 return sb.ToString();
             }
         }
@@ -79,31 +80,55 @@ namespace AISlop
             if (string.IsNullOrWhiteSpace(rawResponse))
                 return "Exception: Response was empty!";
 
-            rawResponse = rawResponse.Replace("{{", "{").Replace("}}", "}");
+            int braceCount = 0;
+            bool inString = false;
+            char stringChar = '\0';
+            int startIndex = -1;
 
-            var matches = Regex.Matches(
-                rawResponse,
-                @"\{(?:[^{}]|(?<open>\{)|(?<-open>\}))*\}(?(open)(?!))",
-                RegexOptions.Singleline
-            );
-
-            if (matches.Count == 0)
-                return "Exception: No jsons found in the response!";
-
-            var firstMatch = matches
-                .First()
-                .Value
-                .Trim();
-
-            try
+            for (int i = 0; i < rawResponse.Length; i++)
             {
-                JsonDocument.Parse(firstMatch);
-                return firstMatch;
+                char c = rawResponse[i];
+
+                if ((c == '"' || c == '\'') && (i == 0 || rawResponse[i - 1] != '\\'))
+                {
+                    if (!inString)
+                    {
+                        inString = true;
+                        stringChar = c;
+                    }
+                    else if (c == stringChar)
+                        inString = false;
+                }
+
+                if (!inString)
+                {
+                    if (c == '{')
+                    {
+                        if (braceCount == 0)
+                            startIndex = i;
+                        braceCount++;
+                    }
+                    else if (c == '}')
+                    {
+                        braceCount--;
+                        if (braceCount == 0 && startIndex != -1)
+                        {
+                            string candidate = rawResponse.Substring(startIndex, i - startIndex + 1);
+                            try
+                            {
+                                JsonDocument.Parse(candidate);
+                                return candidate;
+                            }
+                            catch (JsonException)
+                            {
+                                return "Exception: The first JSON-like structure found was invalid.";
+                            }
+                        }
+                    }
+                }
             }
-            catch (JsonException ex)
-            {
-                return $"Exception: The first JSON-like structure found was invalid. {ex.Message}";
-            }
+
+            return "Exception: No valid JSON found in the response!";
         }
     }
 }

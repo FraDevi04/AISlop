@@ -1,5 +1,4 @@
-﻿
-
+﻿// src/tools/terminal/ExecuteTerminal.cs
 using System.Diagnostics;
 
 namespace AISlop;
