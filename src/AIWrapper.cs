@@ -29,6 +29,7 @@ namespace AISlop
                 FrequencyPenalty = 0.2
             });
             _conversation.AddSystemMessage(GetInstruction("SlopInstruction"));
+            _conversation.AddSystemMessage(GetInstruction("WebDev"));
             _streamingStates = streamingState;
         }
         public async Task<string> AskAi(string message)

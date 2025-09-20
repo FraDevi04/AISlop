@@ -43,6 +43,6 @@ public class WriteFile : ITool
         if (File.Exists(filePath))
             File.Delete(filePath);
 
-        return _CreateFile(filePath, text, cwd);
+        return _CreateFile(filename, text, cwd);
     }
 }
