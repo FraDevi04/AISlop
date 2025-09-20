@@ -31,6 +31,9 @@ public class WriteFile : ITool
         using StreamWriter sw = new(file, Encoding.UTF8);
 
         content = Regex.Unescape(content);
+        if (filename.Contains(".html"))
+            content = XMLParser.UnescapeHtml(content);
+
         sw.Write(content);
 
         return Task.FromResult($"File has been created: \"{filename}\" and content written into it");

@@ -1,12 +1,4 @@
 ﻿// src/AgentHandler.cs
-using AISlop;
-
-using System;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using System.Transactions;
-
 namespace AISlop
 {
     public class AgentHandler
@@ -36,10 +28,12 @@ namespace AISlop
                 throw new ArgumentNullException("Task was an empty string!");
 
             Logging.DisplayAgentThought(ConsoleColor.Green);
-            var agentResponse = await _agent.AskAi($"{initialTask}\nCurrent cwd: \"{_cwd}\"");
+            var agentResponse = await _agent.AskAi($"{initialTask}\nCurrent cwd: \"{_cwd}\"", ExecuteTool);
 
-            while (_agentRunning)
+            do
+            {
                 agentResponse = await HandleAgentResponse(agentResponse);
+            } while (_agentRunning);
         }
         /// <summary>
         /// Handles the agents response and task phases
@@ -48,70 +42,44 @@ namespace AISlop
         /// <returns>API Responses</returns>
         private async Task<string> HandleAgentResponse(string rawResponse)
         {
-            var parsedToolCalls = Parser.Parse(rawResponse);
-            if (parsedToolCalls.Count() == 1 && !string.IsNullOrWhiteSpace(parsedToolCalls.First().Error))
-                return await HandleInvalidToolcall(parsedToolCalls.First().Error);
-
-            string toolCallOutputs = await ExecuteTool(parsedToolCalls);
-
-            if (!string.IsNullOrEmpty(toolCallOutputs))
-                Logging.DisplayToolCallUsage(toolCallOutputs);
-
+            var toolCallOutputs = ParserContext.ToolOutputs;
             if (!_agentRunning)
                 return await HandleTaskCompletion(toolCallOutputs);
             else
                 return await ContinueAgent(toolCallOutputs);
         }
         /// <summary>
-        /// Gives back the toolcall exception message to the Agent
-        /// </summary>
-        /// <param name="toolException">Toolcall output</param>
-        /// <returns>agents response</returns>
-        private async Task<string> HandleInvalidToolcall(string toolException)
-        {
-            Logging.DisplayToolCallUsage(toolException);
-            Logging.DisplayAgentThought(ConsoleColor.Green);
-            return await _agent.AskAi($"Tool result: {toolException}\nCurrent cwd: \"{_cwd}\"");
-        }
-        /// <summary>
         /// Executes tools in order
         /// </summary>
         /// <param name="toolcalls">Tools to execute</param>
         /// <returns>Tool outputs</returns>
-        private async Task<string> ExecuteTool(IEnumerable<Parser.Command> toolcalls)
+        private async Task<string> ExecuteTool(Command singleCall)
         {
-            StringBuilder sb = new();
             string currentToolName = "";
             try
             {
-                foreach (var singleCall in toolcalls)
+                currentToolName = singleCall.Tool;
+                if (_tools.TryGetValue(singleCall.Tool.ToLower(), out var tool))
                 {
-                    currentToolName = singleCall.Tool;
-                    if (_tools.TryGetValue(singleCall.Tool.ToLower(), out var tool))
-                    {
-                        var context = new ToolExecutionContext { CurrentWorkingDirectory = _cwd };
-                        string result = await tool.ExecuteAsync(singleCall.Args, context);
-                        _cwd = context.CurrentWorkingDirectory;
-                        if (currentToolName.ToLower() == "taskdone")
-                        {
-                            _agentRunning = false;
-                            break;
-                        }    
+                    var context = new ToolExecutionContext { CurrentWorkingDirectory = _cwd };
+                    string result = await tool.ExecuteAsync(singleCall.Args, context);
+                    _cwd = context.CurrentWorkingDirectory;
 
-                        sb.AppendLine($"{singleCall.Tool} output: {result}");
-                    }
-                    else
+                    if (currentToolName.ToLower() == "taskdone")
                     {
-                        sb.AppendLine($"{singleCall.Tool} error: Tool not found.");
+                        _agentRunning = false;
+                        return ($"Task completed");
                     }
+                    else 
+                        return ($"{singleCall.Tool} output: {result}");
                 }
+                else
+                    return ($"{singleCall.Tool} error: Tool not found.");
             }
             catch (Exception ex)
             {
-                sb.AppendLine($"An exception occurred during {currentToolName} execution: {ex.Message}");
+                return ($"An exception occurred during {currentToolName} execution: {ex.Message}");
             }
-
-            return sb.ToString();
         }
         /// <summary>
         /// Task ended handle. `end` ends the current chat
@@ -135,7 +103,7 @@ namespace AISlop
             Console.WriteLine();
             _agentRunning = true;
             Logging.DisplayAgentThought(ConsoleColor.Green);
-            return await _agent.AskAi($"User followup question/task: {newTask}\nCurrent cwd: \"{_cwd}\"");
+            return await _agent.AskAi($"User followup question/task: {newTask}\nCurrent cwd: \"{_cwd}\"", ExecuteTool);
         }
         /// <summary>
         /// 
@@ -146,7 +114,8 @@ namespace AISlop
         {
             Logging.DisplayAgentThought(ConsoleColor.Green);
             return await _agent.AskAi(
-                $"Tool result: \"{toolOutput}\"\nCurrent cwd: \"{_cwd}\""
+                $"Tool result: \"{toolOutput}\"\nCurrent cwd: \"{_cwd}\"",
+                ExecuteTool
             );
         }
     }
