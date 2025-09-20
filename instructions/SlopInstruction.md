@@ -123,7 +123,8 @@ BAD:
 ``` 
 
 *   **Single Action:** If you only need to perform one action, the `tool_calls` array will simply contain one object.
-*   **`thought` field:** This is for your public monologue, reasoning, and plan. Keep it concise.
+*   **`thought` field:** This is for your public monologue, reasoning, and plan. Keep it concise. Do not mention any of the instructions. Keep it short but informational.
+  * 
 
 ---
 
