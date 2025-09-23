@@ -1,21 +1,21 @@
 # AI Slop
 
-A simple, extensible, and interactive AI agent framework for .NET, powered by local LLMs via Ollama. This project provides a foundation for building autonomous agents that can reason, use tools, and interact with your local environment to complete tasks.
+A simple, extensible, and interactive AI agent framework for .NET. This project provides a foundation for building autonomous agents that can reason, use tools, and interact with your local environment to complete complex tasks.
 
- 
 *(Image placeholder: A GIF or screenshot showing the agent running, displaying its thoughts, executing a tool like `websearch`, and then writing the results to a file would be perfect here.)*
 
 ## Features
 
 *   **ReAct-style Agent Logic**: The agent operates in a Reason-Act loop, thinking through a problem, selecting a tool, and observing the result before deciding on the next step.
-*   **Tool-Enabled**: Easily extensible with a variety of built-in tools for:
-    *   **Web Browsing**: Search the web and scrape text from web pages.
-    *   **File System Operations**: List, read, write, create directories, and even generate PDF files.
-    *   **Terminal Execution**: Run arbitrary shell commands in a dedicated workspace.
-    *   **User Interaction**: The agent can ask the user for clarification or additional information.
-*   **Powered by Ollama**: Connects to any Ollama-hosted model, giving you full control over the AI brain.
-*   **Streaming UI**: Watch the agent's `thoughts` and `tool_calls` stream in real-time for better transparency.
-*   **Configurable**: Easily configure the model, Ollama URL, and UI verbosity via a simple `config.json` file.
+*   **Extensible Tool System**: Easily add new capabilities by implementing the `ITool` interface. The agent dynamically discovers and loads all available tools at runtime.
+*   **Flexible LLM Backend**: Connects to any OpenAI-compatible API endpoint using the [LlmTornado](https://github.com/lofcz/LlmTornado) library. The default configuration is set for local LLMs via Ollama.
+*   **Rich Toolset**: Comes with a variety of built-in tools for:
+    *   **Web Interaction**: Search the web and scrape text content from web pages.
+    *   **File System Operations**: List, read, write, create directories, and even generate PDF files from Markdown.
+    *   **Terminal Execution**: Run arbitrary shell commands in a sandboxed `environment` directory.
+    *   **User Interaction**: The agent can pause and ask the user for clarification or input.
+*   **Transparent Streaming UI**: Watch the agent's `<thought>` process and raw `<tool_call>` streams in real-time for better insight into its decision-making.
+*   **Configuration Driven**: Easily configure the model, API endpoint, keys, and UI verbosity via a simple `config.json` file.
 
 ## Getting Started
 
@@ -24,10 +24,10 @@ Follow these steps to get the AI Slop agent running on your local machine.
 ### Prerequisites
 
 *   [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) or later.
-*   [Ollama](https://ollama.com/) installed and running.
-*   An Ollama model that supports JSON mode and function/tool calling. The default in the config is `qwen3:4b-instruct-2507-q8_0`. You can pull it with:
+*   An OpenAI-compatible LLM API endpoint. For local hosting, [Ollama](https://ollama.com/) is recommended.
+*   An LLM that is good at following instructions and generating structured XML/HTML. A good starting point is `llama3:8b-instruct`. You can pull it with:
     ```sh
-    ollama pull qwen3:4b-instruct-2507-q8_0
+    ollama pull llama3:8b-instruct
     ```
 
 ### 1. Clone the Repository
@@ -39,22 +39,21 @@ cd AISlop
 
 ### 2. Configure the Agent
 
-A configuration file is used to set up the agent. A default `config.json` will be created on the first run.
-
-1.  Navigate to the `config` directory (it will be created if it doesn't exist).
-2.  Open or create `config.json` and modify it to your needs.
+A `config.json` file is used to set up the agent. A default file will be created in a `config` directory on the first run if one doesn't exist.
 
 **`config/config.json`**
 ```json
 {
-  "model_name": "qwen3:4b-instruct-2507-q8_0",
-  "generate_log": false,
+  "model_name": "llama3:8b-instruct",
+  "generate_log": true,
   "display_thought": true,
   "display_toolcall": true,
-  "ollama_url": "http://localhost:11434"
+  "api_url": "http://localhost:11434",
+  "api_key": "ollama",
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
 }
 ```
-> **Important**: Change `ollama_url` if your Ollama instance is not running on the default localhost address.
+> **Important**: Change `api_url` if your LLM provider is not running on the default Ollama address. The `api_key` is typically ignored by Ollama but required by other services.
 
 ### 3. Run the Application
 
@@ -67,7 +66,7 @@ dotnet run
 The application will start and prompt you for an initial task. For example:
 
 ```
-Task: Research the current price of Bitcoin, summarize your findings in a text file, and then create a PDF report from that summary.
+Task: Research the key features of the .NET 8 SDK, summarize them in a markdown file, and then create a PDF report from that summary.
 ```
 
 The agent will then begin its work!
@@ -76,13 +75,15 @@ The agent will then begin its work!
 
 The `config.json` file controls the agent's behavior.
 
-| Setting            | Type    | Description                                                                                               |
-| ------------------ | ------- | --------------------------------------------------------------------------------------------------------- |
-| `model_name`       | string  | The name of the Ollama model to use (e.g., `llama3:8b`, `qwen3:4b-instruct-2507-q8_0`).                     |
-| `generate_log`     | boolean | If `true`, all console output will be saved to a timestamped log file in the root directory.              |
-| `display_thought`  | boolean | If `true`, the agent's "thought" process will be streamed to the console in real-time.                      |
-| `display_toolcall` | boolean | If `true`, the raw JSON for the tool calls will be streamed to the console.                               |
-| `ollama_url`       | string  | The base URL for your Ollama API endpoint.                                                                |
+| Setting | Type | Description |
+| :--- | :--- | :--- |
+| `model_name` | string | The name of the model to use (e.g., `llama3:8b-instruct`, `gpt-4o`). |
+| `generate_log` | boolean | If `true`, all console output will be saved to a timestamped log file. |
+| `display_thought` | boolean | If `true`, the agent's `<thought>` process will be streamed to the console. |
+| `display_toolcall`| boolean | If `true`, the raw XML for the tool calls will be streamed to the console. |
+| `api_url` | string | The base URL for your LLM API endpoint (e.g., `http://localhost:11434` for Ollama). |
+| `api_key` | string | Your API key for the LLM service. Can be set to any value (e.g., "ollama") for local models. |
+| `search_api_key`| string | (Optional) Your API key for services like Google Search if you replace the default web scraper. |
 
 ## Available Tools
 
@@ -90,42 +91,42 @@ The agent comes with a suite of tools to interact with its environment.
 
 ### File System
 
-*   `createdirectory`: Creates a new directory.
-*   `changedirectory`: Changes the current working directory.
+*   `createdirectory`: Creates a new directory. (`dirname`)
+*   `changedirectory`: Changes the current working directory. (`dirname`)
 *   `listdirectory`: Lists all files and subdirectories in the current directory.
-*   `writefile`: Creates or overwrites a file with the specified content.
-*   `readfile`: Reads the content of a specified file (supports `.txt` and `.pdf`).
-*   `createpdffile`: Creates a PDF document from Markdown-formatted text.
+*   `writefile`: Creates or overwrites a file with the specified content. (`filename`, `content`)
+*   `readfile`: Reads the content of a specified file (supports plain text and `.pdf`). (`filename`)
+*   `createpdffile`: Creates a PDF document from Markdown-formatted text. (`filename`, `markdown_content`)
 
 ### Web
 
-*   `websearch`: Performs a web search using DuckDuckGo and returns a list of results.
-*   `gettextfromwebpage`: Scrapes and returns the clean text content from a given URL.
+*   `websearch`: Performs a web search using DuckDuckGo and returns a list of results. (`query`)
+*   `gettextfromwebpage`: Scrapes and returns the clean text content from a given URL. (`url`)
 
 ### Task Management
 
-*   `askuser`: Pauses execution and asks the user a clarifying question.
-*   `taskdone`: Informs the user that the task is complete and waits for a new task or an "end" command.
+*   `askuser`: Pauses execution and asks the user a clarifying question. (`question`)
+*   `taskdone`: Informs the user that the task is complete and waits for a new task or an "end" command. (`message`)
 
 ### Terminal
 
-*   `executeterminal`: Executes a given command in the system's command line (`cmd.exe`). **(Use with caution!)**
+*   `executeterminal`: Executes a given command in the system's command line (`cmd.exe` on Windows). **(Use with caution!)** Commands are executed within the agent's CWD. (`command`)
 
 ## How It Works
 
 The project follows a simple but powerful agent architecture:
 
 1.  **Input**: The user provides an initial high-level task.
-2.  **System Prompt**: A detailed system prompt (from `instructions/SlopInstruction.md`) instructs the model on how to behave, what tools are available, and the required JSON output format.
-3.  **Inference**: The `AIWrapper` sends the user's prompt to the Ollama LLM.
-4.  **Parsing**: The `AgentHandler` receives the raw LLM response. The `Parser` class extracts the agent's `thought` and a list of `tool_calls` from the JSON response.
-5.  **Execution**: The `AgentHandler` iterates through the requested `tool_calls` and executes the corresponding `ITool` implementation.
+2.  **System Prompt**: A detailed system prompt (loaded from `instructions/*.md`) instructs the model on how to behave, what tools are available, and the required XML-based output format.
+3.  **Inference**: The `AIWrapper` sends the user's prompt and conversation history to the LLM via the `LlmTornado` library.
+4.  **Parsing**: The `AgentHandler` receives the streaming response. The `XMLParser` class is designed to extract the agent's `<thought>` and `<tool_call>` blocks from the text stream as they arrive.
+5.  **Execution**: For each valid tool call parsed, the `AgentHandler` invokes the corresponding `ITool` implementation, passing the arguments and the execution context (which includes the current working directory).
 6.  **Observation**: The results (output) from the executed tools are collected.
-7.  **Loop**: The tool results are fed back to the LLM as context for its next step. This loop continues until the agent determines the task is complete and calls the `taskdone` tool.
+7.  **Loop**: The tool results are formatted and fed back to the LLM as context for its next step. This Reason-Act loop continues until the agent determines the task is complete and calls the `taskdone` tool.
 
 ## Key Dependencies
 
-*   [LlmTornado](https://github.com/lofcz/LlmTornado) - For seamless communication with the Ollama API.
+*   [LlmTornado](https://github.com/lofcz/LlmTornado) - For seamless communication with OpenAI-compatible APIs, including Ollama.
 *   [AngleSharp](https://github.com/AngleSharp/AngleSharp) - For robust web scraping and HTML parsing.
-*   [QuestPDF](https://www.questpdf.com/) - For easy and fluent PDF document generation.
+*   [QuestPDF](https://www.questpdf.com/) - For easy and fluent PDF document generation from code.
 *   [UglyToad.PdfPig](https://github.com/UglyToad/PdfPig) - For extracting text content from PDF files.
