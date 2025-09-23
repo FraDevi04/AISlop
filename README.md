@@ -2,8 +2,6 @@
 
 A simple, extensible, and interactive AI agent framework for .NET. This project provides a foundation for building autonomous agents that can reason, use tools, and interact with your local environment to complete complex tasks.
 
-*(Image placeholder: A GIF or screenshot showing the agent running, displaying its thoughts, executing a tool like `websearch`, and then writing the results to a file would be perfect here.)*
-
 ## Features
 
 *   **ReAct-style Agent Logic**: The agent operates in a Reason-Act loop, thinking through a problem, selecting a tool, and observing the result before deciding on the next step.
