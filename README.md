@@ -48,7 +48,8 @@ A `config.json` file is used to set up the agent. A default file will be created
   "display_toolcall": true,
   "api_url": "http://localhost:11434",
   "api_key": "ollama",
-  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY",
+  "search_engine_id": "YOUR_GOOGLE_SEARCH_ID"
 }
 ```
 > **Important**: Change `api_url` if your LLM provider is not running on the default Ollama address. The `api_key` is typically ignored by Ollama but required by other services.
