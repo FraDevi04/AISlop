@@ -13,6 +13,12 @@ public class GetTextFromWebPage : ITool
             );
     }
 
+    /// <summary>
+    /// TODO: doesn't work for online pdf files. c# has to download it into a temp folder
+    /// then read it with the PDFReader THEN return the page details
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns></returns>
     private async Task<string> _GetTextFromWebPage(string url)
     {
         return await WebScraper.ScrapeTextFromUrlAsync(url);

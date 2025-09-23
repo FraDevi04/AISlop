@@ -13,7 +13,7 @@ public class ListDirectory : ITool
             context.CurrentWorkingDirectory);
     }
 
-    private Task<string> _ListDirectory(string cwd)
+    private Task<string> _ListDirectory(string cwd) // TODO: implement recursive search
     {
         if (!Directory.Exists(cwd))
             return Task.FromResult("Current CWD is empty");

@@ -7,7 +7,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-config/
+config/config.json
 
 # Build results
 [Dd]ebug/

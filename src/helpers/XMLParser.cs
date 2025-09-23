@@ -9,7 +9,7 @@ public static class XMLParser
     {
         while (true)
         {
-            var startMatch = Regex.Match(
+            var startMatch = Regex.Match( // Has to be perfect match
                 context.Buffer.Substring(context.SearchPosition),
                 @"<tool_call name=""(?<name>.*?)"">"
             );
@@ -19,7 +19,7 @@ public static class XMLParser
 
             string toolName = startMatch.Groups["name"].Value;
 
-            List<string> acceptedEndTags = new()
+            List<string> acceptedEndTags = new() // Allow tool endings, since only 1 tool is getting called at a time
             {
                 $"</tool_call name=\"{toolName}\")>",
                 "</tool_call>",
@@ -43,9 +43,11 @@ public static class XMLParser
             int blockStartIndex = searchStart + startMatch.Length;
             string innerContent = context.Buffer.Substring(blockStartIndex, endTagIndex - blockStartIndex);
 
+            // Get the arg and value into a dict
             var args = Regex.Matches(innerContent, @"<(?<key>\w+)>(?<value>.*?)<\/\k<key>>", RegexOptions.Singleline)
                 .ToDictionary(m => m.Groups["key"].Value, m => m.Groups["value"].Value.Trim());
 
+            // Change search position to not parse 1 command twice
             context.SearchPosition = endTagIndex + endTag.Length;
 
             return new Command()

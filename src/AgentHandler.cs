@@ -12,7 +12,7 @@ namespace AISlop
         /// <summary>
         /// Initializes the Tools, Agent, and a ToolHandler for this instance
         /// </summary>
-        /// <param name="modelName">Ollama model name</param>
+        /// <param name="modelName">AI model name</param>
         public AgentHandler(IEnumerable<ITool> availableTools, AIWrapper wrapper)
         {
             _agent = wrapper;

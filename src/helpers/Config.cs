@@ -1,4 +1,5 @@
 ﻿// src/helpers/Config.cs
+using System.Diagnostics;
 using System.Text.Json;
 using System.Xml;
 
@@ -11,6 +12,8 @@ public class Settings
     public bool display_thought { get; set; }
     public bool display_toolcall { get; set; }
     public string api_url { get; set; }
+    public string api_key { get; set; }
+    public string search_api_key { get; set; }
 
 }
 public static class Config
@@ -51,13 +54,15 @@ public static class Config
         {
             _settings = new Settings
             {
-                model_name = "default_model",
+                model_name = "YOUR_AI_MODEL",
                 generate_log = false,
                 display_thought = false,
                 display_toolcall = false,
-                api_url = "http://localhost:11434"
+                api_url = "http://localhost:11434",
+                api_key = "YOUR_API_KEY",
+                search_api_key = "YOUR_GOOGLE_SEARCH_API_KEY"
             };
-            Console.WriteLine("Please change the default config file in the configs folder");
+            Console.WriteLine("Please change the default config file in the configs folder, then relaunch the app");
             SaveConfig();
         }
     }

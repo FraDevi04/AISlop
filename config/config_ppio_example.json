@@ -1,0 +1,9 @@
+{
+  "model_name": "deepseek/deepseek-v3-0324",
+  "generate_log": false,
+  "display_thought": true,
+  "display_toolcall": true,
+  "api_url": "https://api.ppinfra.com/v3/openai",
+  "api_key": "YOUR_PPIO_API_KEY",
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+}

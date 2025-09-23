@@ -13,9 +13,8 @@ namespace AISlop
     {
         /// <summary>
         /// Api support: https://github.com/lofcz/LlmTornado
-        /// Note: this is a private VPN IP change this to either "localhost" or your LLM server
         /// </summary>
-        TornadoApi api = new(new Uri(Config.Settings.api_url)); // default Ollama port, API key can be passed in the second argument if needed
+        TornadoApi api = new(new Uri(Config.Settings.api_url), Config.Settings.api_key);
         Conversation _conversation = null!;
         readonly int _streamingStates;
         public AIWrapper(string model, int streamingState)

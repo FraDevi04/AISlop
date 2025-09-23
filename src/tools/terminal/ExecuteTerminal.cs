@@ -14,7 +14,7 @@ public class ExecuteTerminal : ITool
             );
     }
 
-    private Task<string> _ExecuteTerminal(string command, string cwd)
+    private Task<string> _ExecuteTerminal(string command, string cwd) // TODO: The ai could still run a command like "rm -rf /*" lol
     {
         var processInfo = new ProcessStartInfo("cmd.exe", $"/c {command}")
         {
