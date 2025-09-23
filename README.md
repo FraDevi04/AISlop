@@ -81,7 +81,8 @@ The `config.json` file controls the agent's behavior.
 | `display_toolcall`| boolean | If `true`, the raw XML for the tool calls will be streamed to the console. |
 | `api_url` | string | The base URL for your LLM API endpoint (e.g., `http://localhost:11434` for Ollama). |
 | `api_key` | string | Your API key for the LLM service. Can be set to any value (e.g., "ollama") for local models. |
-| `search_api_key`| string | (Optional) Your API key for services like Google Search if you replace the default web scraper. |
+| `search_api_key`| string | Your API key for services like Google Search |
+| `search_engine_id`| string | Your search engine id for services like Google Search |
 
 ## Available Tools
 
@@ -98,7 +99,7 @@ The agent comes with a suite of tools to interact with its environment.
 
 ### Web
 
-*   `websearch`: Performs a web search using DuckDuckGo and returns a list of results. (`query`)
+*   `websearch`: Performs a web search using Google API and returns a list of results. (`query`)
 *   `gettextfromwebpage`: Scrapes and returns the clean text content from a given URL. (`url`)
 
 ### Task Management
