@@ -1,27 +1,33 @@
 ﻿// src/helpers/WebScraper.cs
 namespace AISlop;
 
-using System.Collections.Immutable;
-using System.Text;
-using System.Web;
-
 using AngleSharp;
 using AngleSharp.Dom;
+using System.Text;
+using System.Text.Json;
+using System.Web;
 
 public record SearchResult(string Title, string Link, string Snippet);
 public static class WebScraper
 {
+    private static string apiKey = Config.Settings.search_api_key;
+    private static string searchEngineId = Config.Settings.search_engine_id;
+    static WebScraper()
+    {
+        client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+    }
+    private static readonly HttpClient client = new HttpClient();
     public static async Task<string> Search(string query)
     {
         try
         {
             var results = await PerformSearch(query);
-            if (!results.Any())
+            if (results == null || results.Count == 0)
                 return "No search results found.";
 
             StringBuilder sb = new();
-
             int count = 1;
+
             foreach (var result in results)
             {
                 sb.AppendLine($"{count++}. {result.Title}");
@@ -37,57 +43,30 @@ public static class WebScraper
         }
     }
 
-    /// <summary>
-    /// Performs a web search by scraping DuckDuckGo.
-    /// This method is static and belongs to the static WebSearcher class.
-    /// </summary>
-    /// <param name="query">The search term.</param>
-    /// <returns>A list of search results.</returns>
     public static async Task<List<SearchResult>> PerformSearch(string query)
     {
-        using var client = new HttpClient();
-        client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
-
         string encodedQuery = HttpUtility.UrlEncode(query);
-        string searchUrl = $"https://html.duckduckgo.com/html/?q={encodedQuery}";
 
-        string htmlContent = await client.GetStringAsync(searchUrl);
+        string searchUrl = $"https://www.googleapis.com/customsearch/v1?key={apiKey}&cx={searchEngineId}&q={encodedQuery}";
 
-        var context = BrowsingContext.New(Configuration.Default);
-        IDocument document = await context.OpenAsync(req => req.Content(htmlContent));
+        string jsonResponse = await client.GetStringAsync(searchUrl);
 
-        var resultNodes = document.QuerySelectorAll("div.result");
+        using JsonDocument doc = JsonDocument.Parse(jsonResponse);
+        var results = new List<SearchResult>();
 
-        var searchResults = new List<SearchResult>();
-
-        var baseUri = new Uri("https://html.duckduckgo.com");
-
-        foreach (var node in resultNodes)
+        if (doc.RootElement.TryGetProperty("items", out JsonElement items))
         {
-            var titleNode = node.QuerySelector("h2.result__title a");
-            var linkNode = node.QuerySelector("a.result__url");
-            var snippetNode = node.QuerySelector("a.result__snippet");
-
-            if (titleNode != null && linkNode != null && snippetNode != null)
+            foreach (JsonElement item in items.EnumerateArray())
             {
-                string title = titleNode.TextContent.Trim();
-                string relativeLink = linkNode.GetAttribute("href")?.Trim() ?? string.Empty;
-                string snippet = snippetNode.TextContent.Trim();
+                string title = item.GetProperty("title").GetString() ?? "";
+                string link = item.GetProperty("link").GetString() ?? "";
+                string snippet = item.GetProperty("snippet").GetString() ?? "";
 
-                if (string.IsNullOrEmpty(relativeLink)) continue;
-
-                // Create a full, absolute URI from the base and the relative link
-                var absoluteUri = new Uri(baseUri, relativeLink);
-
-                // Now extract the clean link from the query parameters
-                var queryParams = HttpUtility.ParseQueryString(absoluteUri.Query);
-                string cleanLink = queryParams["uddg"] ?? absoluteUri.ToString();
-
-                searchResults.Add(new SearchResult(title, cleanLink, snippet));
+                results.Add(new SearchResult(title, link, snippet));
             }
         }
 
-        return searchResults;
+        return results;
     }
 
     /// <summary>
@@ -102,12 +81,9 @@ public static class WebScraper
 
         try
         {
-            using var client = new HttpClient();
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
-
-            var context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-
             string htmlContent = await client.GetStringAsync(url);
+
+            var context = BrowsingContext.New(Configuration.Default);
             IDocument document = await context.OpenAsync(req => req.Content(htmlContent));
 
             var elementsToRemove = document.QuerySelectorAll("script, style, nav, header, footer, aside");
@@ -134,7 +110,7 @@ public static class WebScraper
         {
             return $"Failed to download content from {url}. Status: {e.StatusCode}";
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return $"An unexpected error occurred while scraping {url}.";
         }

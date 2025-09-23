@@ -14,6 +14,7 @@ public class Settings
     public string api_url { get; set; }
     public string api_key { get; set; }
     public string search_api_key { get; set; }
+    public string search_engine_id { get; set; }
 
 }
 public static class Config
@@ -60,7 +61,8 @@ public static class Config
                 display_toolcall = false,
                 api_url = "http://localhost:11434",
                 api_key = "YOUR_API_KEY",
-                search_api_key = "YOUR_GOOGLE_SEARCH_API_KEY"
+                search_api_key = "YOUR_GOOGLE_SEARCH_API_KEY",
+                search_engine_id = "YOUR_GOOGLE_SEARCH_ID"
             };
             Console.WriteLine("Please change the default config file in the configs folder, then relaunch the app");
             SaveConfig();
