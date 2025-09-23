@@ -10,7 +10,7 @@ public class Settings
     public bool generate_log { get; set; }
     public bool display_thought { get; set; }
     public bool display_toolcall { get; set; }
-    public string ollama_url { get; set; }
+    public string api_url { get; set; }
 
 }
 public static class Config
@@ -55,7 +55,7 @@ public static class Config
                 generate_log = false,
                 display_thought = false,
                 display_toolcall = false,
-                ollama_url = "http://localhost:11434"
+                api_url = "http://localhost:11434"
             };
             Console.WriteLine("Please change the default config file in the configs folder");
             SaveConfig();

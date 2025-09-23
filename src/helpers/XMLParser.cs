@@ -9,32 +9,36 @@ public static class XMLParser
     {
         while (true)
         {
-            var startMatch = Regex.Match(context.Buffer.Substring(context.SearchPosition), @"<toolcall\((?<name>.*?)\)>");
-            if (!startMatch.Success) break;
+            var startMatch = Regex.Match(
+                context.Buffer.Substring(context.SearchPosition),
+                @"<tool_call name=""(?<name>.*?)"">"
+            );
+
+            if (!startMatch.Success)
+                break;
 
             string toolName = startMatch.Groups["name"].Value;
 
-            string endTagSpecific = $"</toolcall({toolName})>";
-            string endTagGeneric = "</toolcall>";
+            List<string> acceptedEndTags = new()
+            {
+                $"</tool_call name=\"{toolName}\")>",
+                "</tool_call>",
+                "</tool>"
+            };
 
             int searchStart = context.SearchPosition + startMatch.Index;
-            int endTagSpecificIndex = context.Buffer.IndexOf(endTagSpecific, searchStart);
-            int endTagGenericIndex = context.Buffer.IndexOf(endTagGeneric, searchStart);
 
-            int endTagIndex;
-            string endTag;
-            if (endTagSpecificIndex != -1 && (endTagGenericIndex == -1 || endTagSpecificIndex < endTagGenericIndex))
-            {
-                endTagIndex = endTagSpecificIndex;
-                endTag = endTagSpecific;
-            }
-            else if (endTagGenericIndex != -1)
-            {
-                endTagIndex = endTagGenericIndex;
-                endTag = endTagGeneric;
-            }
-            else
+            var matches = acceptedEndTags
+                .Select(tag => new { Tag = tag, Index = context.Buffer.IndexOf(tag, searchStart) })
+                .Where(x => x.Index >= 0)
+                .ToList();
+
+            if (!matches.Any())
                 break;
+
+            var chosen = matches.OrderBy(x => x.Index).First();
+            int endTagIndex = chosen.Index;
+            string endTag = chosen.Tag;
 
             int blockStartIndex = searchStart + startMatch.Length;
             string innerContent = context.Buffer.Substring(blockStartIndex, endTagIndex - blockStartIndex);

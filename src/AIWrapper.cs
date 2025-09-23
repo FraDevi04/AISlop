@@ -15,7 +15,7 @@ namespace AISlop
         /// Api support: https://github.com/lofcz/LlmTornado
         /// Note: this is a private VPN IP change this to either "localhost" or your LLM server
         /// </summary>
-        TornadoApi api = new(new Uri(Config.Settings.ollama_url)); // default Ollama port, API key can be passed in the second argument if needed
+        TornadoApi api = new(new Uri(Config.Settings.api_url)); // default Ollama port, API key can be passed in the second argument if needed
         Conversation _conversation = null!;
         readonly int _streamingStates;
         public AIWrapper(string model, int streamingState)
@@ -27,6 +27,7 @@ namespace AISlop
                 TopP = 0.9,
                 FrequencyPenalty = 0.2
             });
+            
             _conversation.AddSystemMessage(GetInstruction("SlopInstruction"));
             _conversation.AddSystemMessage(GetInstruction("WebDev"));
             _streamingStates = streamingState;
