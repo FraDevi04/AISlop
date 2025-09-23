@@ -19,16 +19,16 @@ Your primary protocol in this mode is to produce a single, self-contained `.html
 <head>
     <!-- [1] CDN Links for Fonts, CSS Libraries (e.g., Toastify) -->
     
-    <!-- [2.1] CRITICAL: Tailwind Configuration Script (MUST BE FIRST) -->
+    <!-- [2.1] Tailwind CSS Play CDN Script -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- [2.2] CRITICAL: Tailwind Configuration Script (AFTER IMPORTING TAILWIND CDN) -->
     <script>
         tailwind.config = {
             darkMode: 'class',
             // ... other theme extensions if needed
         }
     </script>
-    
-    <!-- [2.2] Tailwind CSS Play CDN Script -->
-    <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- [3] Inline <style> block for custom CSS -->
 </head>
