@@ -6,6 +6,7 @@ namespace AISlop
         private readonly AIWrapper _agent;
         private string _cwd = "environment";
         private bool _agentRunning = true;
+        private bool _taskDone = false;
         private readonly Dictionary<string, ITool> _tools;
 
         /// <summary>
@@ -30,10 +31,8 @@ namespace AISlop
             Logging.DisplayAgentThought(ConsoleColor.Green);
             var agentResponse = await _agent.AskAi($"{initialTask}\nCurrent cwd: \"{_cwd}\"", ExecuteTool);
 
-            do
-            {
+            while(_agentRunning)
                 agentResponse = await HandleAgentResponse(agentResponse);
-            } while (_agentRunning);
         }
         /// <summary>
         /// Handles the agents response and task phases
@@ -43,7 +42,7 @@ namespace AISlop
         private async Task<string> HandleAgentResponse(string rawResponse)
         {
             var toolCallOutputs = ParserContext.ToolOutputs;
-            if (!_agentRunning)
+            if (_taskDone)
                 return await HandleTaskCompletion(toolCallOutputs);
             else
                 return await ContinueAgent(toolCallOutputs);
@@ -66,10 +65,7 @@ namespace AISlop
                     _cwd = context.CurrentWorkingDirectory;
 
                     if (currentToolName.ToLower() == "taskdone")
-                    {
-                        _agentRunning = false;
-                        return ($"Task completed");
-                    }
+                        _taskDone = true;
                     else 
                         return ($"{singleCall.Tool} output: {result}");
                 }
@@ -80,6 +76,7 @@ namespace AISlop
             {
                 return ($"An exception occurred during {currentToolName} execution: {ex.Message}");
             }
+            return ($"Task is marked as completed!");
         }
         /// <summary>
         /// Task ended handle. `end` ends the current chat
@@ -90,7 +87,7 @@ namespace AISlop
         /// <exception cref="ArgumentNullException">No task was given</exception>
         private async Task<string> HandleTaskCompletion(string completeMessage)
         {
-            Console.Beep();
+            _agentRunning = false;
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine("New task: (type \"end\" to end the process)");
             string newTask = Console.ReadLine();
