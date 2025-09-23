@@ -1,0 +1,9 @@
+{
+  "model_name": "qwen3:7b",
+  "generate_log": false,
+  "display_thought": true,
+  "display_toolcall": true,
+  "api_url": "http://localhost:11434",
+  "api_key": "ollama",
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+}

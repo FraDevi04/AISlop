@@ -1,0 +1,9 @@
+{
+  "model_name": "gemini-2.5-flash-lite",
+  "generate_log": false,
+  "display_thought": true,
+  "display_toolcall": true,
+  "api_url": "https://generativelanguage.googleapis.com/v1beta/openai/",
+  "api_key": "YOUR_GOOGLE_API_KEY",
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+}

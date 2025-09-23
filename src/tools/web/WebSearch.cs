@@ -13,7 +13,7 @@ public class WebSearch : ITool
             );
     }
 
-    private async Task<string> _WebSearch(string query)
+    private async Task<string> _WebSearch(string query) // TODO: Remove DDG, replace with google search api
     {
         return await WebScraper.Search(query);
     }

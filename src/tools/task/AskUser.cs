@@ -9,7 +9,7 @@ public class AskUser : ITool
         return Task.Run(() => _AskUser(args.GetValueOrDefault("question")));
     }
 
-    private string _AskUser(string message)
+    private string _AskUser(string message) // TODO: shouldn't be run as async, thats just fucked lol
     {
         // Your original blocking method
         Console.ForegroundColor = ConsoleColor.Cyan;

@@ -1,0 +1,9 @@
+{
+  "model_name": "claude-3-7-sonnet-latest",
+  "generate_log": false,
+  "display_thought": true,
+  "display_toolcall": true,
+  "api_url": "https://api.anthropic.com/v1/",
+  "api_key": "YOUR_ANTHROPIC_API_KEY",
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+}
