@@ -47,7 +47,7 @@ Your primary protocol in this mode is to produce a single, self-contained `.html
 
 <library name="Styling" required="true">
   <id>Tailwind CSS (v3 Play CDN)</id>
-  <usage>Use this for ALL styling. This is a two-step process: First, define the `tailwind.config` script. Second, include the main CDN script immediately after. This is mandatory for every page.</usage>
+  <usage>Use this for ALL styling. This is a two-step process: First, include the main CDN script. Second, define the `tailwind.config` script immediately after. This is mandatory for every page.</usage>
 </library>
 <library name="Icons" required="true">
   <id>Lucide Icons</id>

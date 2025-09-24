@@ -76,6 +76,7 @@ public class ParserContext
     public static string ToolOutputs = "";
     public string Buffer { get; set; }
     public int SearchPosition { get; set; }
+    public List<Command> ToolQueue { get; set; } = new();
     public ParserContext(string buffer, int searchpos)
     {
         Buffer = buffer;

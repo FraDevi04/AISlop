@@ -38,13 +38,14 @@ namespace AISlop
             ParserContext.ToolOutputs = "";
 
             bool streamThought = false;
+            bool toolRunning = false;
 
             // just aesthetic
             if ((_streamingStates & (int)ProcessingState.StreamingToolCalls) != 0)
                 Console.WriteLine();
 
             await _conversation.AppendUserInput(message)
-                .StreamResponse(chunk =>
+                .StreamResponse(async chunk =>
                 {
                     responseBuilder.Append(chunk);
                     string currentFullResponse = responseBuilder.ToString();
@@ -69,12 +70,17 @@ namespace AISlop
                     var toolCommand = XMLParser.ParseCurrent(context);
                     if (toolCommand != null)
                     {
-                        var toolOutput = toolExecutor(toolCommand).Result;
+                        toolRunning = true;
+                        var toolOutput = await toolExecutor(toolCommand);
 
                         Logging.DisplayToolCallUsage(toolOutput);
                         ParserContext.ToolOutputs += $"{toolOutput}\n";
+                        toolRunning = false;
                     }
                 });
+
+            while (toolRunning)
+                Thread.Sleep(1);
 
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine();

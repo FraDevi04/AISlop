@@ -5,5 +5,6 @@
   "display_toolcall": true,
   "api_url": "http://localhost:11434",
   "api_key": "ollama",
-  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY",
+  "search_engine_id": "YOUR_GOOGLE_SEARCH_ID"
 }
