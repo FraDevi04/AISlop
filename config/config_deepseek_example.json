@@ -1,0 +1,10 @@
+{
+  "model_name": "deepseek-chat",
+  "generate_log": false,
+  "display_thought": false,
+  "display_toolcall": false,
+  "api_url": "https://api.deepseek.com",
+  "api_key": "YOUR_API_KEY",
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY",
+  "search_engine_id": "YOUR_GOOGLE_SEARCH_ID"
+}

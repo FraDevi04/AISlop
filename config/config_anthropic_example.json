@@ -5,5 +5,6 @@
   "display_toolcall": true,
   "api_url": "https://api.anthropic.com/v1/",
   "api_key": "YOUR_ANTHROPIC_API_KEY",
-  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY"
+  "search_api_key": "YOUR_GOOGLE_SEARCH_API_KEY",
+  "search_engine_id": "YOUR_GOOGLE_SEARCH_ID"
 }
