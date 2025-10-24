@@ -1,6 +1,5 @@
 ﻿// Program.cs
 using AISlop;
-using AISlop;
 
 using System.Reflection;
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;

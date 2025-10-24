@@ -1,10 +1,6 @@
 ﻿// src/AIWrapper.cs
-using AISlop;
-
 using LlmTornado;
 using LlmTornado.Chat;
-using LlmTornado.Chat.Models;
-using LlmTornado.Code;
 using System.Text;
 
 namespace AISlop
@@ -22,20 +18,18 @@ namespace AISlop
             _conversation = api.Chat.CreateConversation(new ChatRequest()
             {
                 Model = model,
-                Temperature = 0.2,
-                TopP = 0.9,
-                FrequencyPenalty = 0.2
             });
             
             _conversation.AddSystemMessage(GetInstruction("SlopInstruction"));
-            _conversation.AddSystemMessage(GetInstruction("WebDev"));
+            //_conversation.AddSystemMessage(GetInstruction("TailwindInstallation"));
+            _conversation.AddSystemMessage($"Current date: {DateTime.Today.ToString("d")}");
             _streamingStates = streamingState;
         }
         public async Task<string> AskAi(string message, Func<Command, Task<string>> toolExecutor)
         {
             var responseBuilder = new StringBuilder();
             ParserContext context = new("", 0);
-            ParserContext.ToolOutputs = "";
+            ParserContext.ToolOutputs = new();
 
             bool streamThought = false;
             bool toolRunning = false;
@@ -74,7 +68,14 @@ namespace AISlop
                         var toolOutput = await toolExecutor(toolCommand);
 
                         Logging.DisplayToolCallUsage(toolOutput);
-                        ParserContext.ToolOutputs += $"{toolOutput}\n";
+                        if (ParserContext.ToolOutputs.ContainsKey(toolCommand.Tool))
+                        {
+                            ParserContext.ToolOutputs[toolCommand.Tool] += $"\n{toolOutput}";
+                        }
+                        else
+                        {
+                            ParserContext.ToolOutputs.Add(toolCommand.Tool, toolOutput);
+                        }
                         toolRunning = false;
                     }
                 });
@@ -85,6 +86,75 @@ namespace AISlop
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine();
             return responseBuilder.ToString();
+        }
+
+        public async Task<string> AskAiLoopCallback(Dictionary<string, string> message, Func<Command, Task<string>> toolExecutor)
+        {
+            var responseBuilder = new StringBuilder();
+            ParserContext context = new("", 0);
+            ParserContext.ToolOutputs = new();
+
+            bool streamThought = false;
+            bool toolRunning = false;
+
+            // just aesthetic
+            if ((_streamingStates & (int)ProcessingState.StreamingToolCalls) != 0)
+                Console.WriteLine();
+
+            foreach (var item in message)
+            {
+                Console.WriteLine($"{item.Key} {item.Value}");
+                _conversation.AppendFunctionMessage(item.Key, item.Value);
+            }
+
+            await _conversation.AppendUserInput(message["cwd"])
+                .StreamResponse(async chunk =>
+                {
+                    responseBuilder.Append(chunk);
+                    string currentFullResponse = responseBuilder.ToString();
+
+                    bool stopStream = currentFullResponse.Count(a => a == '<') > 1;
+                    if (stopStream)
+                        streamThought = false;
+                    else if (currentFullResponse.Contains("<thought>") && !chunk.Contains(">"))
+                        streamThought = true;
+
+                    if (!streamThought && (_streamingStates & (int)ProcessingState.StreamingToolCalls) != 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
+                        Console.Write(chunk);
+                        Console.ForegroundColor = ConsoleColor.Gray;
+                    }
+
+                    if (streamThought)
+                        Console.Write(chunk);
+
+                    context.Buffer = currentFullResponse;
+                    var toolCommand = XMLParser.ParseCurrent(context);
+                    if (toolCommand != null)
+                    {
+                        toolRunning = true;
+                        var toolOutput = await toolExecutor(toolCommand);
+
+                        Logging.DisplayToolCallUsage(toolOutput);
+                        if (ParserContext.ToolOutputs.ContainsKey(toolCommand.Tool))
+                        {
+                            ParserContext.ToolOutputs[toolCommand.Tool] += $"\n{toolOutput}";
+                        }
+                        else
+                        {
+                            ParserContext.ToolOutputs.Add(toolCommand.Tool, toolOutput);
+                        }
+                        toolRunning = false;
+                    }
+                });
+
+            while (toolRunning)
+                Thread.Sleep(1);
+
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.WriteLine();
+            return responseBuilder.ToString();        
         }
 
         private string GetInstruction(string instructName)
