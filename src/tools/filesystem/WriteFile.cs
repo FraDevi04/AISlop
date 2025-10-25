@@ -12,11 +12,12 @@ public class WriteFile : ITool
         return _OverwriteFile(
             args.GetValueOrDefault("filename"),
             args.GetValueOrDefault("content"),
+            args.GetValueOrDefault("append"),
             context.CurrentWorkingDirectory
             );
     }
 
-    private Task<string> _CreateFile(string filename, string content, string cwd)
+    private Task<string> _CreateFile(string filename, string content, bool shouldAppend, string cwd)
     {
         string filePath = Path.Combine(cwd, filename);
 
@@ -24,11 +25,10 @@ public class WriteFile : ITool
         if (!string.IsNullOrEmpty(dir))
             Directory.CreateDirectory(dir);
 
-        if (File.Exists(filePath))
+        if (File.Exists(filePath) && !shouldAppend)
             return Task.FromResult($"A file with that name already exists in the workspace: {filename}");
 
-        using var file = File.Create(filePath);
-        using StreamWriter sw = new(file, Encoding.UTF8);
+        using StreamWriter sw = new(filePath, shouldAppend);
 
         content = Regex.Unescape(content);
         if (filename.Contains(".html"))
@@ -36,16 +36,18 @@ public class WriteFile : ITool
 
         sw.Write(content);
 
-        return Task.FromResult($"File has been created: \"{filename}\" and content written into it");
+        return Task.FromResult($"File has been written: \"{filename}\" and content written into it");
     }
 
-    public Task<string> _OverwriteFile(string filename, string text, string cwd)
+    public Task<string> _OverwriteFile(string filename, string text, string? append, string cwd)
     {
         string filePath = Path.Combine(cwd, filename);
 
-        if (File.Exists(filePath))
+        bool shouldAppend = append is null ? false : bool.Parse(append);
+
+        if (File.Exists(filePath) && !shouldAppend)
             File.Delete(filePath);
 
-        return _CreateFile(filename, text, cwd);
+        return _CreateFile(filename, text, shouldAppend, cwd);
     }
 }

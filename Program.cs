@@ -1,6 +1,5 @@
 ﻿// Program.cs
 using AISlop;
-using AISlop;
 
 using System.Reflection;
 QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
@@ -28,4 +27,4 @@ var tools = Assembly.GetExecutingAssembly()
     .ToList();
 
 var agentHandler = new AgentHandler(tools, new AIWrapper(Config.Settings.model_name, flags));
-await agentHandler.RunAsync(taskString);
+await agentHandler.RunAsync($"Task: {taskString}");

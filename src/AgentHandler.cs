@@ -43,7 +43,7 @@ namespace AISlop
         {
             var toolCallOutputs = ParserContext.ToolOutputs;
             if (_taskDone)
-                return await HandleTaskCompletion(toolCallOutputs);
+                return await HandleTaskCompletion(toolCallOutputs.GetValueOrDefault("TaskDone"));
             else
                 return await ContinueAgent(toolCallOutputs);
         }
@@ -99,6 +99,7 @@ namespace AISlop
 
             Console.WriteLine();
             _agentRunning = true;
+            _taskDone = false;
             Logging.DisplayAgentThought(ConsoleColor.Green);
             return await _agent.AskAi($"User followup question/task: {newTask}\nCurrent cwd: \"{_cwd}\"", ExecuteTool);
         }
@@ -107,11 +108,12 @@ namespace AISlop
         /// </summary>
         /// <param name="toolOutput"></param>
         /// <returns></returns>
-        private async Task<string> ContinueAgent(string toolOutput)
+        private async Task<string> ContinueAgent(Dictionary<string, string> toolOutput)
         {
             Logging.DisplayAgentThought(ConsoleColor.Green);
+            toolOutput.Add("cwd", $"Current cwd: {_cwd}");
             return await _agent.AskAi(
-                $"Tool result: \"{toolOutput}\"\nCurrent cwd: \"{_cwd}\"",
+                toolOutput,
                 ExecuteTool
             );
         }
