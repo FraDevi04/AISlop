@@ -112,7 +112,7 @@ namespace AISlop
         {
             Logging.DisplayAgentThought(ConsoleColor.Green);
             toolOutput.Add("cwd", $"Current cwd: {_cwd}");
-            return await _agent.AskAiLoopCallback(
+            return await _agent.AskAi(
                 toolOutput,
                 ExecuteTool
             );
