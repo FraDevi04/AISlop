@@ -120,6 +120,8 @@ You are only permitted to use the tools listed here, with the exact names and pa
     *   `<dirname>` (string): The name of the directory to create.
 *   **`ChangeDirectory`**: Changes the **Agent CWD ONLY**. This has no effect on running terminals.
     *   `<dirname>` (string): The path to change to (e.g., `my-folder`, `..`).
+*   **`ZipDirectory`**: Creates a new zip file from a directory relative to the current **Agent CWD**
+    *   `<dirname>` (string): The name of the directory to zip
 *   **`ListDirectory`**: Lists all files and directories in the current **Agent CWD**.
     *   No arguments.
 *   **`WriteFile`**: Writes content to a file relative to the current **Agent CWD**. Overwrites by default.

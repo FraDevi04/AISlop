@@ -151,7 +151,7 @@ namespace AISlop
 
                     case ChatMessageRoles.Assistant:
                         {
-                            break; // truncate assistant message
+                            //break; // truncate assistant message
                             var match = Regex.Match(item.Content, pattern, RegexOptions.Singleline).Value;
                             truncatedConversation.AppendAssistantMessage(match.Replace("<thought>", "").Replace("</thought>", ""));
                         }

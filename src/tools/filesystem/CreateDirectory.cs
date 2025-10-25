@@ -12,7 +12,7 @@ public class CreateDirectory : ITool
             context.CurrentWorkingDirectory);
     }
 
-    private Task<string> _CreateDirectory(string name, string cwd)
+    public Task<string> _CreateDirectory(string name, string cwd)
     {
         string folder = Path.Combine(cwd, name);
         if (Directory.Exists(folder))
