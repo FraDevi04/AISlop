@@ -1,7 +1,9 @@
 ﻿// src/AIWrapper.cs
 using LlmTornado;
 using LlmTornado.Chat;
+using LlmTornado.Code;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AISlop
 {
@@ -27,6 +29,7 @@ namespace AISlop
         private async Task<string> ProcessStreamedResponseAsync(Conversation turn, Func<Command, Task<string>> toolExecutor)
         {
             ParserContext.ToolOutputs = new Dictionary<string, string>();
+            turn = TruncateMessages();
 
             // Aesthetic: add a new line if we are streaming tool calls
             if ((_streamingStates & (int)ProcessingState.StreamingToolCalls) != 0)
@@ -46,6 +49,7 @@ namespace AISlop
 
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine();
+            _conversation.AppendAssistantMessage(ctx.responseBuilder.ToString());
             return ctx.responseBuilder.ToString();
         }
 
@@ -114,13 +118,57 @@ namespace AISlop
             {
                 if (item.Key.Equals("cwd", StringComparison.OrdinalIgnoreCase)) continue;
 
-                _conversation.AppendUserInput(item.Value);
+                _conversation.AppendUserInputWithName(item.Key, $"Tooloutput: {item.Value}");
             }
 
-            string nextPrompt = toolOutputsAndPrompt["cwd"];
-            var turn = _conversation.AppendUserInput(nextPrompt);
-
+            var turn = _conversation.AppendUserInput(toolOutputsAndPrompt["cwd"]);
             return await ProcessStreamedResponseAsync(turn, toolExecutor);
+        }
+
+        public Conversation TruncateMessages()
+        {
+            var truncatedConversation = api.Chat.CreateConversation(new ChatRequest()
+            {
+                Model = _conversation.Model
+            });
+            truncatedConversation.AppendUserInput(_conversation.Messages.First(user => user.Role == ChatMessageRoles.User).Content);
+            const string pattern = @"<thought>(.*?)<\/thought>";
+            StringBuilder sb = new();
+            foreach (var item in _conversation.Messages)
+            {
+                switch (item.Role)
+                {
+                    case ChatMessageRoles.System:
+                        truncatedConversation.AppendSystemMessage(item.Content);
+                        break;
+
+                    case ChatMessageRoles.User:
+                        {
+                            if (!string.IsNullOrWhiteSpace(item.Name))
+                                truncatedConversation.AppendUserInputWithName(item.Name, item.Content);
+                        }
+                        break;
+
+                    case ChatMessageRoles.Assistant:
+                        {
+                            break; // truncate assistant message
+                            var match = Regex.Match(item.Content, pattern, RegexOptions.Singleline).Value;
+                            truncatedConversation.AppendAssistantMessage(match.Replace("<thought>", "").Replace("</thought>", ""));
+                        }
+                        break;
+                }
+            }
+            truncatedConversation.AppendUserInput(_conversation.Messages.Last(a => a.Content.Contains("Current cwd")).Content);
+            //Console.WriteLine("\n-----------------CURRENT MESSAGE HISTORY-----------------\n");
+            //foreach (var item in truncatedConversation.Messages)
+            //{
+            //    if (item.Role != ChatMessageRoles.System)
+            //    {
+            //        Console.WriteLine($"{item.Role} {item.Name} {item.Content}\n");
+            //    }
+            //}
+            //Console.WriteLine("-----------------END-----------------");
+            return truncatedConversation;
         }
 
         private string GetInstruction(string instructName)
