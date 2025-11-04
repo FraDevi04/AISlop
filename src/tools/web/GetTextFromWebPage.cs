@@ -8,9 +8,10 @@ public class GetTextFromWebPage : ITool
     public string Name => "gettextfromwebpage";
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
-        return _GetTextFromWebPage(
-            args.GetValueOrDefault("url")
-            );
+        string? url = args.GetValueOrDefault("url");
+        if (string.IsNullOrWhiteSpace(url))
+            return Task.FromResult("Error: 'url' is required.");
+        return _GetTextFromWebPage(url);
     }
 
     /// <summary>

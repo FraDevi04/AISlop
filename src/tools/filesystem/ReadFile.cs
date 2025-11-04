@@ -9,8 +9,11 @@ public class ReadFile : ITool
     public string Name => "readfile";
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
+        string? filename = args.GetValueOrDefault("filename");
+        if (string.IsNullOrWhiteSpace(filename))
+            return Task.FromResult("Error: 'filename' is required.");
         return _ReadFile(
-            args.GetValueOrDefault("filename"),
+            filename,
             context.CurrentWorkingDirectory);
     }
 

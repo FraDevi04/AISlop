@@ -6,7 +6,7 @@ namespace AISlop
     /// </summary>
     public class ToolExecutionContext 
     {
-        public string CurrentWorkingDirectory { get; set; }
+        public string CurrentWorkingDirectory { get; set; } = string.Empty;
 
         public override string ToString()
         {

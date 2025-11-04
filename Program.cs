@@ -11,7 +11,7 @@ string taskString = Console.ReadLine()!; Console.WriteLine();
 StreamWriter sw = null!;
 if (Config.Settings.generate_log)
 {
-    var fileName = $"{DateTime.Now:yyyy-MM-dd_HH-mm}-log.txt";
+    var fileName = $"{DateTime.Now:yyyy-dd-MM_HH-mm}-log.txt";
     sw = new StreamWriter(fileName, append: true) { AutoFlush = true };
     Console.SetOut(new MultiTextWriter(Console.Out, sw));
 }

@@ -8,7 +8,10 @@ public class TaskDone : ITool
     public string Name => "taskdone";
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
-        return Task.FromResult(_TaskDone(args.GetValueOrDefault("message")));
+        string? m = args.GetValueOrDefault("message");
+        if (string.IsNullOrWhiteSpace(m))
+            return Task.FromResult("Error: 'message' is required.");
+        return Task.FromResult(_TaskDone(m));
     }
 
     private string _TaskDone(string message)

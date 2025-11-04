@@ -5,20 +5,23 @@ namespace AISlop;
 
 public class Settings
 {
-    public string model_name { get; set; }
+    public string model_name { get; set; } = string.Empty;
     public bool generate_log { get; set; }
     public bool display_thought { get; set; }
     public bool display_toolcall { get; set; }
-    public string api_url { get; set; }
-    public string api_key { get; set; }
-    public string search_api_key { get; set; }
-    public string search_engine_id { get; set; }
+    public string api_url { get; set; } = string.Empty;
+    public string api_key { get; set; } = string.Empty;
+    public string search_api_key { get; set; } = string.Empty;
+    public string search_engine_id { get; set; } = string.Empty;
+    public string google_calendar_credentials_json { get; set; } = string.Empty;
+    public string google_calendar_token_json { get; set; } = string.Empty;
+    public string notion_api_key { get; set; } = string.Empty;
 
 }
 public static class Config
 {
     private static string configPath;
-    private static Settings _settings;
+    private static Settings _settings = null!;
 
     static Config()
     {
@@ -60,7 +63,10 @@ public static class Config
                 api_url = "http://localhost:11434",
                 api_key = "YOUR_API_KEY",
                 search_api_key = "YOUR_GOOGLE_SEARCH_API_KEY",
-                search_engine_id = "YOUR_GOOGLE_SEARCH_ID"
+                search_engine_id = "YOUR_GOOGLE_SEARCH_ID",
+                google_calendar_credentials_json = "YOUR_GOOGLE_CALENDAR_CREDENTIALS_JSON_PATH",
+                google_calendar_token_json = "YOUR_GOOGLE_CALENDAR_TOKEN_JSON_PATH",
+                notion_api_key = "YOUR_NOTION_API_KEY"
             };
             Console.WriteLine("Please change the default config file in the configs folder, then relaunch the app");
             SaveConfig();

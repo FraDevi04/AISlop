@@ -7,8 +7,11 @@ public class CreateDirectory : ITool
 
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
+        string? name = args.GetValueOrDefault("dirname");
+        if (string.IsNullOrWhiteSpace(name))
+            return Task.FromResult("Error: 'dirname' is required.");
         return _CreateDirectory(
-            args.GetValueOrDefault("dirname"),
+            name,
             context.CurrentWorkingDirectory);
     }
 

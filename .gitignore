@@ -8,6 +8,9 @@
 *.userosscache
 *.sln.docstates
 config/config.json
+config/credentials.json
+config/gmail_tokens/
+config/tokens/
 
 # Build results
 [Dd]ebug/

@@ -7,7 +7,10 @@ public class ChangeDirectory : ITool
 
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
-        return _ChangeDirectory(args.GetValueOrDefault("dirname"), context);
+        string? dirname = args.GetValueOrDefault("dirname");
+        if (string.IsNullOrWhiteSpace(dirname))
+            return Task.FromResult("Error: 'dirname' is required.");
+        return _ChangeDirectory(dirname, context);
     }
 
     private Task<string> _ChangeDirectory(string folderName, ToolExecutionContext cwd)

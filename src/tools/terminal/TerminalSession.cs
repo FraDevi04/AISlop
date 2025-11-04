@@ -9,18 +9,27 @@ public class TerminalSession : IDisposable
     private readonly StreamWriter _inputWriter;
     private readonly StringBuilder _outputBuffer = new StringBuilder();
     private readonly StringBuilder _errorBuffer = new StringBuilder();
-    private readonly TaskCompletionSource<string> _commandCompletionSource;
+    private TaskCompletionSource<string>? _currentCommandCompletionSource;
     private readonly string _endOfCommandMarker = Guid.NewGuid().ToString();
     public TerminalSession(string workingDirectory)
     {
-        _commandCompletionSource = new TaskCompletionSource<string>();
+        _currentCommandCompletionSource = null;
 
-        var processInfo = new ProcessStartInfo("cmd.exe")
+        string shell;
+        if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows))
+            shell = "cmd.exe";
+        else
+            shell = "/bin/bash";
+
+        // Use fallback working directory if doesn't exist:
+        if (!Directory.Exists(workingDirectory))
+            workingDirectory = "/home/fradevi";
+
+        var processInfo = new ProcessStartInfo(shell)
         {
             WorkingDirectory = workingDirectory,
             RedirectStandardInput = true,
             RedirectStandardOutput = true,
-
             RedirectStandardError = true,
             UseShellExecute = false,
             CreateNoWindow = true,
@@ -54,7 +63,8 @@ public class TerminalSession : IDisposable
             _outputBuffer.Clear();
             _errorBuffer.Clear();
 
-            _commandCompletionSource.TrySetResult(finalOutput + finalError);
+            // Signal completion for the active command, if any
+            _currentCommandCompletionSource?.TrySetResult(finalOutput + finalError);
         }
         else
         {
@@ -72,10 +82,14 @@ public class TerminalSession : IDisposable
 
     public async Task<string> RunCommandAsync(string command)
     {
+        // Initialize a new completion source for this command
+        var tcs = new TaskCompletionSource<string>();
+        _currentCommandCompletionSource = tcs;
+
         await _inputWriter.WriteLineAsync(command);
         await _inputWriter.WriteLineAsync($"echo {_endOfCommandMarker}");
 
-        return await _commandCompletionSource.Task;
+        return await tcs.Task;
     }
 
     public void Dispose()

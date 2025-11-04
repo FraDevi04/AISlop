@@ -6,7 +6,10 @@ public class AskUser : ITool
     public string Name => "askuser";
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
-        return Task.Run(() => _AskUser(args.GetValueOrDefault("question")));
+        string? q = args.GetValueOrDefault("question");
+        if (string.IsNullOrWhiteSpace(q))
+            return Task.FromResult("Error: 'question' is required.");
+        return Task.Run(() => _AskUser(q));
     }
 
     private string _AskUser(string message) // TODO: shouldn't be run as async, thats just fucked lol

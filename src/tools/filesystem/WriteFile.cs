@@ -9,10 +9,17 @@ public class WriteFile : ITool
     public string Name => "writefile";
     public Task<string> ExecuteAsync(Dictionary<string, string> args, ToolExecutionContext context)
     {
+        string? filename = args.GetValueOrDefault("filename");
+        string? content = args.GetValueOrDefault("content");
+        string? append = args.GetValueOrDefault("append");
+        if (string.IsNullOrWhiteSpace(filename))
+            return Task.FromResult("Error: 'filename' is required.");
+        if (content is null)
+            content = string.Empty;
         return _OverwriteFile(
-            args.GetValueOrDefault("filename"),
-            args.GetValueOrDefault("content"),
-            args.GetValueOrDefault("append"),
+            filename,
+            content,
+            append,
             context.CurrentWorkingDirectory
             );
     }
